@@ -97,33 +97,26 @@ enum bif_error bif_image_read(const char* filename, enum bif_flags flags, struct
     }
     file = fopen(filename, "rb");
     if (!file) {
-        printf("A\n");
         return BIF_ERROR_FILE_OPEN;
     }
     if (fread(bif, 1, 4, file) != 4) {
-        printf("b\n");
         return BIF_ERROR_IO_FAILED;
     }
     if (bif[0] != 'B' || bif[1] != 'I' || bif[2] != 'F' || bif[3] != '\0') {
-        printf("c\n");
         return BIF_ERROR_IO_FAILED;
     }
     if (fread(&image->width, 2, 1, file) != 1) {
-        printf("d\n");
         return BIF_ERROR_IO_FAILED;
     }
     if (fread(&image->height, 2, 1, file) != 1) {
-        printf("e\n");
         return BIF_ERROR_IO_FAILED;
     }
     pixel_count = image->width*image->height;
     image->buffer = malloc(pixel_count*4);
     if (!image->buffer) {
-        printf("f\n");
         return BIF_ERROR_OUT_OF_MEMORY;
     }
     if (fread(image->buffer, 4, pixel_count, file) != pixel_count) {
-        printf("g\n");
         free(image->buffer);
         return BIF_ERROR_IO_FAILED;
     }
