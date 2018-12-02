@@ -5,6 +5,10 @@
 enum bif_error {
     BIF_OK = 0,
     BIF_ERROR_UNKNOWN,
+    BIF_ERROR_FILE_OPEN,
+    BIF_ERROR_BAD_ARGUMENT,
+    BIF_ERROR_IO_FAILED,
+    BIF_ERROR_OUT_OF_MEMORY,
     BIF_ERROR_HORRIBLY_MANGLED
 };
 
@@ -86,35 +90,42 @@ enum bif_error bif_image_read(const char* filename, enum bif_flags flags, struct
     size_t pixel_count;
     
     if (!filename || !*filename || !image) {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        return BIF_ERROR_BAD_ARGUMENT;
     }
     if (!BIF_CHECK_FLAG(flags, BIF_FLAG_WIBBLE)) {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        return BIF_ERROR_BAD_ARGUMENT;
     }
     file = fopen(filename, "rb");
     if (!file) {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        printf("A\n");
+        return BIF_ERROR_FILE_OPEN;
     }
     if (fread(bif, 1, 4, file) != 4) {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        printf("b\n");
+        return BIF_ERROR_IO_FAILED;
     }
     if (bif[0] != 'B' || bif[1] != 'I' || bif[2] != 'F' || bif[3] != '\0') {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        printf("c\n");
+        return BIF_ERROR_IO_FAILED;
     }
     if (fread(&image->width, 2, 1, file) != 1) {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        printf("d\n");
+        return BIF_ERROR_IO_FAILED;
     }
     if (fread(&image->height, 2, 1, file) != 1) {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        printf("e\n");
+        return BIF_ERROR_IO_FAILED;
     }
     pixel_count = image->width*image->height;
     image->buffer = malloc(pixel_count*4);
     if (!image->buffer) {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        printf("f\n");
+        return BIF_ERROR_OUT_OF_MEMORY;
     }
-    if (fread(image->buffer, pixel_count, 4, file) != pixel_count) {
+    if (fread(image->buffer, 4, pixel_count, file) != pixel_count) {
+        printf("g\n");
         free(image->buffer);
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        return BIF_ERROR_IO_FAILED;
     }
     return BIF_OK;
 }
@@ -132,30 +143,30 @@ enum bif_error bif_image_write(const char* filename, enum bif_flags flags, struc
     uint8_t bif[] = {'B', 'I', 'F', '\0'};
     
     if (!filename || !*filename || !image || !image->buffer) {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        return BIF_ERROR_BAD_ARGUMENT;
     }
     if (!BIF_CHECK_FLAG(flags, BIF_FLAG_WOBBLE)) {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        return BIF_ERROR_BAD_ARGUMENT;
     }
     pixel_count = image->width*image->height;
     if (pixel_count < 1) {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        return BIF_ERROR_BAD_ARGUMENT;
     }
     file = fopen(filename, "wb");
     if (!file) {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        return BIF_ERROR_FILE_OPEN;
     }
     if (fwrite(bif, 1, 4, file) != 4) {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        return BIF_ERROR_IO_FAILED;
     }
     if (fwrite(&image->width, 2, 1, file) != 1) {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        return BIF_ERROR_IO_FAILED;
     }
     if (fwrite(&image->height, 2, 1, file) != 1) {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+        return BIF_ERROR_IO_FAILED;
     }
-    if (fwrite(image->buffer, pixel_count, 4, file) != pixel_count) {
-        return BIF_ERROR_HORRIBLY_MANGLED;
+    if (fwrite(image->buffer, 4, pixel_count, file) != pixel_count) {
+        return BIF_ERROR_IO_FAILED;
     }
     return BIF_OK;
 }

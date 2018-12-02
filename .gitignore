@@ -23,7 +23,7 @@ $RECYCLE.BIN/
 # =========================
 
 #
-background.png
+background.bif
 build/
 .eggs/
 *.egg-info/
