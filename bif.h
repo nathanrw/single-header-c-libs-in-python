@@ -1,24 +1,6 @@
 /**
  * Basic Image Format
  **/
- 
-#ifdef WIN32
-#  ifdef BIF_IMPLEMENTATION
-#    define BIF_API __declspec(dllexport)
-#  else
-#    define BIF_API __declspec(dllimport)
-#  endif
-#endif
-
-#ifdef __cplusplus
-  #define BIF_API_BEGIN extern "C" {
-  #define BIF_API_END }
-#else
-  #define BIF_API_BEGIN
-  #define BIF_API_END
-#endif
-
-BIF_API_BEGIN
 
 enum bif_error {
     BIF_OK = 0,
@@ -26,7 +8,7 @@ enum bif_error {
     BIF_ERROR_HORRIBLY_MANGLED
 };
 
-#define BIF_FLAG(N) (1 << N)
+#define BIF_FLAG(N) (1 << (N))
 
 #define BIF_CHECK_FLAG(VAR, FLAG) (!!(VAR & FLAG))
 
@@ -36,35 +18,83 @@ enum bif_flags {
     BIF_FLAG_WOBBLE = BIF_FLAG(1)
 };
 
+ /* Note: not including stdint. Cffi defines these for us - if this were
+ a real library we would need to do some trickery since the CDef parser
+ doesn't support includes and we'd need to include stdint.h. */
+
 struct bif_image {
     uint16_t width;
     uint16_t height;
-    uint32_t* buffer; // RGBA pixels.
+    uint32_t* buffer; /* RGBA pixels. */
 };
 
-BIF_API bif_error bif_image_read(const char* filename, bif_flags flags, bif_image* image);
+/**
+ * Read an image from a file.
+ *
+ * Reading will only proceed if BIF_FLAG_WIBBLE is set.
+ *
+ * @param filename Path to the file to read.
+ * @param flags Option flags
+ * @param image Pointer to a struct that will contain the image data.
+ * @return BIF_OK on success, an error code otherwise.
+ * @post On success, image will contain the image data comprising width,
+ *       height, and pixel data buffer. It is the responsibility of the
+ *       caller to free this with bif_image_free().
+ * 
+ */
+enum bif_error bif_image_read(
+  const char* filename, 
+  enum bif_flags flags, 
+  struct bif_image* image
+);
 
-BIF_API bif_error bif_image_free(bif_image* image);
+/**
+ * Free resources for an image read with bif_image_read().
+ * @param image The image to free.
+ * @return BIF_OK on success, an error code otherwise.
+ */
+enum bif_error bif_image_free(
+  struct bif_image* image
+);
 
-BIF_API bif_error bif_image_write(const char* filename, bif_flags flags, bif_image* image);
-
-BIF_API_END
+/**
+ * Write an image to a file.
+ *
+ * Writing will only proceed if BIF_FLAG_WOBBLE is set.
+ *
+ * @param filename Path to the file to read.
+ * @param flags Option flags
+ * @param image Pointer to a struct that contains the image data.
+ * @pre image must be properly initialised with image data.
+ * @return BIF_OK on success, an error code otherwise.
+ */
+enum bif_error bif_image_write(
+  const char* filename, 
+  enum bif_flags flags, 
+  struct bif_image* image
+);
  
 #ifdef BIF_IMPLEMENTATION
 
-bif_error bif_image_read(const char* filename, bif_flags flags, bif_image* image)
+#include <stdlib.h>
+#include <stdio.h>
+
+enum bif_error bif_image_read(const char* filename, enum bif_flags flags, struct bif_image* image)
 {
+    FILE* file;
+    uint8_t bif[4];
+    size_t pixel_count;
+    
     if (!filename || !*filename || !image) {
         return BIF_ERROR_HORRIBLY_MANGLED;
     }
     if (!BIF_CHECK_FLAG(flags, BIF_FLAG_WIBBLE)) {
         return BIF_ERROR_HORRIBLY_MANGLED;
     }
-    FILE file = fopen(filename, "rb");
+    file = fopen(filename, "rb");
     if (!file) {
         return BIF_ERROR_HORRIBLY_MANGLED;
     }
-    uint8_t bif[4];
     if (fread(bif, 1, 4, file) != 4) {
         return BIF_ERROR_HORRIBLY_MANGLED;
     }
@@ -77,7 +107,7 @@ bif_error bif_image_read(const char* filename, bif_flags flags, bif_image* image
     if (fread(&image->height, 2, 1, file) != 1) {
         return BIF_ERROR_HORRIBLY_MANGLED;
     }
-    size_t pixel_count = image->width*image->height;
+    pixel_count = image->width*image->height;
     image->buffer = malloc(pixel_count*4);
     if (!image->buffer) {
         return BIF_ERROR_HORRIBLY_MANGLED;
@@ -89,29 +119,32 @@ bif_error bif_image_read(const char* filename, bif_flags flags, bif_image* image
     return BIF_OK;
 }
 
-bif_error bif_image_free(bif_image* image)
+enum bif_error bif_image_free(struct bif_image* image)
 {
     free(image->buffer);
     return BIF_OK;
 }
 
-bif_error bif_image_write(const char* filename, bif_flags flags, bif_image* image)
+enum bif_error bif_image_write(const char* filename, enum bif_flags flags, struct bif_image* image)
 {
+    size_t pixel_count;
+    FILE* file;
+    uint8_t bif[] = {'B', 'I', 'F', '\0'};
+    
     if (!filename || !*filename || !image || !image->buffer) {
         return BIF_ERROR_HORRIBLY_MANGLED;
     }
     if (!BIF_CHECK_FLAG(flags, BIF_FLAG_WOBBLE)) {
         return BIF_ERROR_HORRIBLY_MANGLED;
     }
-    size_t pixel_count = image->width*image->height;
+    pixel_count = image->width*image->height;
     if (pixel_count < 1) {
         return BIF_ERROR_HORRIBLY_MANGLED;
     }
-    FILE file = fopen(filename, 'wb');
+    file = fopen(filename, "wb");
     if (!file) {
         return BIF_ERROR_HORRIBLY_MANGLED;
     }
-    uint8_t bif[] = {'B', 'I', 'F', '\0'};
     if (fwrite(bif, 1, 4, file) != 4) {
         return BIF_ERROR_HORRIBLY_MANGLED;
     }

@@ -24,3 +24,8 @@ $RECYCLE.BIN/
 
 #
 background.png
+build/
+.eggs/
+*.egg-info/
+cdef.h
+dist/
