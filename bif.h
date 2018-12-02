@@ -19,7 +19,8 @@ enum bif_error {
 enum bif_flags {
     BIF_FLAG_NONE = 0,
     BIF_FLAG_WIBBLE = BIF_FLAG(0),
-    BIF_FLAG_WOBBLE = BIF_FLAG(1)
+    BIF_FLAG_WOBBLE = BIF_FLAG(1),
+    BIF_FLAG_WIBBLE_WOBBLE = BIF_FLAG_WIBBLE | BIF_FLAG_WOBBLE
 };
 
  /* Note: not including stdint. Cffi defines these for us - if this were
