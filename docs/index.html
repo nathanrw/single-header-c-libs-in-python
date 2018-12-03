@@ -15,11 +15,11 @@
     <body>
 
         <div class="reveal">
-            <div class="slides"><section  data-markdown><script type="text/template"># Easily re-use single header c libraries in Python using `cffi`
+            <div class="slides"><section  data-markdown><script type="text/template">### Easily re-use single header c libraries in Python using `cffi`
 
-### Nathan Woodward
+Nathan Woodward
 </script></section><section  data-markdown><script type="text/template">
-# What is this?
+### What is this?
 
 - A technique for easily re-using single-header C libraries from Python.
 
@@ -27,23 +27,26 @@
   such that input for the `cffi` interop library can be generated 
   automatically from the header itself.
 </script></section><section  data-markdown><script type="text/template">
-# Why are we here?
+### Why are we here?
 
 - This will likely have little to no *direct* applicability to the day-to-day 
   lives of many of the people in this room.
 
 - I present it nevertheless for your extra-curricular enrichment!
 </script></section><section  data-markdown><script type="text/template">
-# The problem
+### The problem
 
 - Suppose I am writing a Python program, and I need to do something 
   complicated. There is a good library for it, but it is written 
   in C.
+
 - What do I do?
+
   - Use an existing *binding* for it.
+
   - Roll my own.
 </script></section><section  data-markdown><script type="text/template">
-# Writing a binding
+### Writing a binding
 
 - Turns out, there's not a binding for our library (or perhaps 
   there is one but it's incomplete or unmaintained...)
@@ -51,7 +54,7 @@
 - But, it's been written following the *single-header* idiom, for ease 
   of integration.
 </script></section><section  data-markdown><script type="text/template">
-# Single-header C libraries
+### Single-header C libraries
 
 - A (horrible bodge | cunning workaround) to the problem of 
   integrating C/C++ libraries.
@@ -61,7 +64,7 @@
 
 - Clients then `#include` it and build it however they want.
 </script></section><section  data-markdown><script type="text/template">
-# Single-header C libraries
+### Single-header C libraries
 
 ```C
 /* pfx.h */
@@ -75,7 +78,7 @@ int pfx_do_it()
 #endif
 ```
 </script></section><section  data-markdown><script type="text/template">
-# Image editor
+### Image editor
 
 - We're developing an image editor.
 
@@ -85,9 +88,11 @@ int pfx_do_it()
 - This is an obscure format read and written by the single-header
   C library `bif.h`.
 </script></section><section  data-markdown><script type="text/template">
-# DEMO: Image editor
-</script></section><section  data-markdown><script type="text/template">
-# What are our options?
+### DEMO: Image editor
+
+<aside class="notes"><p>See <code>demo-1.md</code>.</p>
+</aside></script></section><section  data-markdown><script type="text/template">
+### What are our options?
 
 1. Write a C++ Python module that wraps the library and
    exposes what we want to Python.
@@ -97,19 +102,19 @@ int pfx_do_it()
 3. Use some sort of binding generator e.g. `SWIG` to
    automate the process.
 </script></section><section  data-markdown><script type="text/template">
-# Write a C++ Python module
+### Write a C++ Python module
 
 Nope.
 
 <aside class="notes"><p>Completely manual. How to build and package? Got to maintain it. Urgh!</p>
 </aside></script></section><section  data-markdown><script type="text/template">
-# Build a DLL and poke it
+### Build a DLL and poke it
 
 Nope.
 
 <aside class="notes"><p>Same problem of building and packaging. Got to duplicate header info in Python.</p>
 </aside></script></section><section  data-markdown><script type="text/template">
-# Use a binding generator
+### Use a binding generator
 
 - Sounds groovy! However, there is a slight issue. 
 
@@ -123,24 +128,26 @@ Nope.
 
 - Would be nice to automate this if possible.
 </script></section><section  data-markdown><script type="text/template">
-# The `cffi` library
+### The `cffi` library
 
-- A library for producing Python bindings for C libraries
-  without learning a special language (e.g. `SWIG`).
+- A [library](https://cffi.readthedocs.io/en/latest/) for producing 
+  Python bindings for C libraries without learning a special 
+  language (e.g. `SWIG`).
+  
+- Part of the [pypy](https://pypy.org/features.html) project, a
+  faster Python written in Python.
   
 - Generates a Python module from snippets of the C declarations
   that you want to expose.
 
 - *Semi-automatic* - you can't just pass it a whole header (d'oh!)
 </script></section><section  data-markdown><script type="text/template">
-# Can we do better?
+### Can we do better?
 
 - So, we're stuck pasting in snippets from the header and maintaining
   the thing by hand?
 </script></section><section  data-markdown><script type="text/template">
-# Can we do better?
-
-- Yes!
+### Yes, we can!
 
 - Preprocess the header to remove problematic syntax, then 
   feed the whole thing to `cffi`.
@@ -149,32 +156,29 @@ Nope.
 
 - Virtually no maintanance, and easy to build and package!
 </script></section><section  data-markdown><script type="text/template">
-# DEMO
+### DEMO: `mystery.bif`
 
-<aside class="notes"><p>build.py
-      show changes to demo.py
-      note the use of <code>pcpp</code> library. Pure python preprocessor.
-      shift and or evaluation
-      <code>python setup.py install; python demo.py</code></p>
+<aside class="notes"><p>see <code>demo-2.py</code>.</p>
 </aside></script></section><section  data-markdown><script type="text/template">
 <img src="./images/a-pair-of-pigs.jpg" alt="A pair of pigs" width="500"/>
 
 Unknown, *A Pair of Pigs*, circa 1850, oil on canvas, Compton Verney, Warwickshire
     </script></section><section  data-markdown><script type="text/template">
-# A real example: `nuklear-cffi`.
+### A real example: `nuklear-cffi`.
 
 - Benefits of the technique become apparent with ginormous libraries.
 
 - This allowed me to use this GUI library from Python without 
   going insane: https://github.com/vurtun/nuklear
-</script></section><section  data-markdown><script type="text/template">
-# DEMO: `nuklear-cffi`
 
-<aside class="notes"><p>Show nuklear.h
-      Show build.py
-      Run demo.py</p>
+- `nuklear` is an impressive bit of work, it's a platform and render backend
+  agnostic immediate-mode GUI library in a single C header.
+</script></section><section  data-markdown><script type="text/template">
+### DEMO: `nuklear-cffi`
+
+<aside class="notes"><p>See <code>demo-3.md</code>.</p>
 </aside></script></section><section  data-markdown><script type="text/template">
-# Conclusion
+### Conclusion
 
 - The use of `cffi` is not novel. But I've not seen *this
   degree of automation* elsewhere.
@@ -185,7 +189,8 @@ Unknown, *A Pair of Pigs*, circa 1850, oil on canvas, Compton Verney, Warwickshi
 
 - At the cost of being a very low-level interface.
 </script></section><section  data-markdown><script type="text/template">
-# Questions</script></section></div>
+### Questions
+</script></section></div>
         </div>
 
         <script src="./lib/js/head.min.js"></script>
