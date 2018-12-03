@@ -34,50 +34,6 @@ Nathan Woodward
 
 - I present it nevertheless for your extra-curricular enrichment!
 </script></section><section  data-markdown><script type="text/template">
-### The problem
-
-- Suppose I am writing a Python program, and I need to do something 
-  complicated. There is a good library for it, but it is written 
-  in C.
-
-- What do I do?
-
-  - Use an existing *binding* for it.
-
-  - Roll my own.
-</script></section><section  data-markdown><script type="text/template">
-### Writing a binding
-
-- Turns out, there's not a binding for our library (or perhaps 
-  there is one but it's incomplete or unmaintained...)
-
-- But, it's been written following the *single-header* idiom, for ease 
-  of integration.
-</script></section><section  data-markdown><script type="text/template">
-### Single-header C libraries
-
-- A (horrible bodge | cunning workaround) to the problem of 
-  integrating C/C++ libraries.
-
-- Instead of worrying about build systems, artifacts and so 
-  on, just write the whole thing in one header.
-
-- Clients then `#include` it and build it however they want.
-</script></section><section  data-markdown><script type="text/template">
-### Single-header C libraries
-
-```C
-/* pfx.h */
-int pfx_do_it();
-
-#ifdef PFX_IMPLEMENTATION
-int pfx_do_it()
-{
-    return 0;
-}
-#endif
-```
-</script></section><section  data-markdown><script type="text/template">
 ### Image editor
 
 - We're developing an image editor.
@@ -85,14 +41,42 @@ int pfx_do_it()
 - I want to edit my favourite picture, `mystery.bif`, so we need
   to add support for it.
   
-- This is an obscure format read and written by the single-header
-  C library `bif.h`.
+  - This is an obscure format read and written by the *single-header
+    C library* `bif.h`. 
+    
+  - No *binding* for it yet exists.
+  
+<aside class="notes"><p>binding - wrapper through which we can re-use code written
+      in a different language.</p>
+</aside></script></section><section  data-markdown><script type="text/template">
+### Single-header C libraries
+
+- A (horrible bodge | cunning workaround) to the problem of 
+  integrating C and C++ libraries.
+
+  ```C
+  /* pfx.h */
+  int pfx_do_it();
+  
+  #ifdef PFX_IMPLEMENTATION
+  int pfx_do_it()
+  {
+      return 0;
+  }
+  #endif
+  ```
+  
+- Just write the whole thing in one header and build how you like.
+
+<!-- Note: Instead of worrying about build systems, artifacts and so on, just write the whole thing in one header.
+  
+Note: Clients then `#include` it and build it however they want. -->
 </script></section><section  data-markdown><script type="text/template">
 ### DEMO: Image editor
 
 <aside class="notes"><p>See <code>demo-1.md</code>.</p>
 </aside></script></section><section  data-markdown><script type="text/template">
-### What are our options?
+### Writing a binding
 
 1. Write a C++ Python module that wraps the library and
    exposes what we want to Python.
@@ -126,8 +110,8 @@ Nope.
   enum my_flag {wblWIBBLE = 3, wblWOBBLE = 5};
   ```
 
-- Would be nice to automate this if possible.
-</script></section><section  data-markdown><script type="text/template">
+<aside class="notes"><p>Would be nice to automate this if possible.</p>
+</aside></script></section><section  data-markdown><script type="text/template">
 ### The `cffi` library
 
 - A [library](https://cffi.readthedocs.io/en/latest/) for producing 
@@ -141,21 +125,26 @@ Nope.
   that you want to expose.
 
 - *Semi-automatic* - you can't just pass it a whole header (d'oh!)
-</script></section><section  data-markdown><script type="text/template">
-### Can we do better?
+
+<aside class="notes"><p>&#39;cffi&#39; - c foreign function interface.</p>
+</aside></script></section><section  data-markdown><script type="text/template">
+### The `cffi` library
 
 - So, we're stuck pasting in snippets from the header and maintaining
   the thing by hand?
 </script></section><section  data-markdown><script type="text/template">
-### Yes, we can!
+### The `cffi` library
+
+- ~~So, we're stuck pasting in snippets from the header and maintaining
+  the thing by hand?~~ No!
 
 - Preprocess the header to remove problematic syntax, then 
   feed the whole thing to `cffi`.
 
-- We only care about one header, not every possible header!
-
 - Virtually no maintanance, and easy to build and package!
-</script></section><section  data-markdown><script type="text/template">
+
+<aside class="notes"><p>We only care about one header, not every possible header!</p>
+</aside></script></section><section  data-markdown><script type="text/template">
 ### DEMO: `mystery.bif`
 
 <aside class="notes"><p>see <code>demo-2.py</code>.</p>
