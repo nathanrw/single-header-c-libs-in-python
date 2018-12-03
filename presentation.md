@@ -1,10 +1,10 @@
-# Easily re-use single header c libraries in Python using `cffi`
+### Easily re-use single header c libraries in Python using `cffi`
 
-### Nathan Woodward
+Nathan Woodward
 
 ---
 
-# What is this?
+### What is this?
 
 - A technique for easily re-using single-header C libraries from Python.
 
@@ -14,7 +14,7 @@
 
 ---
 
-# Why are we here?
+### Why are we here?
 
 - This will likely have little to no *direct* applicability to the day-to-day 
   lives of many of the people in this room.
@@ -23,18 +23,21 @@
 
 ---
 
-# The problem
+### The problem
 
 - Suppose I am writing a Python program, and I need to do something 
   complicated. There is a good library for it, but it is written 
   in C.
+
 - What do I do?
+
   - Use an existing *binding* for it.
+
   - Roll my own.
 
 ---
 
-# Writing a binding
+### Writing a binding
 
 - Turns out, there's not a binding for our library (or perhaps 
   there is one but it's incomplete or unmaintained...)
@@ -44,7 +47,7 @@
 
 ---
 
-# Single-header C libraries
+### Single-header C libraries
 
 - A (horrible bodge | cunning workaround) to the problem of 
   integrating C/C++ libraries.
@@ -56,7 +59,7 @@
 
 ---
 
-# Single-header C libraries
+### Single-header C libraries
 
 ```C
 /* pfx.h */
@@ -72,7 +75,7 @@ int pfx_do_it()
 
 ---
 
-# Image editor
+### Image editor
 
 - We're developing an image editor.
 
@@ -84,11 +87,13 @@ int pfx_do_it()
 
 ---
 
-# DEMO: Image editor
+### DEMO: Image editor
+
+Note: See `demo-1.md`.
 
 ---
 
-# What are our options?
+### What are our options?
 
 1. Write a C++ Python module that wraps the library and
    exposes what we want to Python.
@@ -100,7 +105,7 @@ int pfx_do_it()
 
 ---
 
-# Write a C++ Python module
+### Write a C++ Python module
 
 Nope.
 
@@ -108,7 +113,7 @@ Note: Completely manual. How to build and package? Got to maintain it. Urgh!
 
 ---
 
-# Build a DLL and poke it
+### Build a DLL and poke it
 
 Nope.
 
@@ -116,7 +121,7 @@ Note: Same problem of building and packaging. Got to duplicate header info in Py
 
 ---
 
-# Use a binding generator
+### Use a binding generator
 
 - Sounds groovy! However, there is a slight issue. 
 
@@ -132,10 +137,14 @@ Note: Same problem of building and packaging. Got to duplicate header info in Py
 
 ---
 
-# The `cffi` library
+### The `cffi` library
 
-- A library for producing Python bindings for C libraries
-  without learning a special language (e.g. `SWIG`).
+- A [library](https://cffi.readthedocs.io/en/latest/) for producing 
+  Python bindings for C libraries without learning a special 
+  language (e.g. `SWIG`).
+  
+- Part of the [pypy](https://pypy.org/features.html) project, a
+  faster Python written in Python.
   
 - Generates a Python module from snippets of the C declarations
   that you want to expose.
@@ -144,16 +153,14 @@ Note: Same problem of building and packaging. Got to duplicate header info in Py
 
 ---
 
-# Can we do better?
+### Can we do better?
 
 - So, we're stuck pasting in snippets from the header and maintaining
   the thing by hand?
 
 ---
 
-# Can we do better?
-
-- Yes!
+### Yes, we can!
 
 - Preprocess the header to remove problematic syntax, then 
   feed the whole thing to `cffi`.
@@ -164,13 +171,9 @@ Note: Same problem of building and packaging. Got to duplicate header info in Py
 
 ---
 
-# DEMO
+### DEMO: `mystery.bif`
 
-Note: build.py
-      show changes to demo.py
-      note the use of `pcpp` library. Pure python preprocessor.
-      shift and or evaluation
-      `python setup.py install; python demo.py`
+Note: see `demo-2.py`.
 
 ---
 
@@ -180,24 +183,25 @@ Unknown, *A Pair of Pigs*, circa 1850, oil on canvas, Compton Verney, Warwickshi
     
 ---
 
-# A real example: `nuklear-cffi`.
+### A real example: `nuklear-cffi`.
 
 - Benefits of the technique become apparent with ginormous libraries.
 
 - This allowed me to use this GUI library from Python without 
   going insane: https://github.com/vurtun/nuklear
 
----
-
-# DEMO: `nuklear-cffi`
-
-Note: Show nuklear.h
-      Show build.py
-      Run demo.py
+- `nuklear` is an impressive bit of work, it's a platform and render backend
+  agnostic immediate-mode GUI library in a single C header.
 
 ---
 
-# Conclusion
+### DEMO: `nuklear-cffi`
+
+Note: See `demo-3.md`.
+
+---
+
+### Conclusion
 
 - The use of `cffi` is not novel. But I've not seen *this
   degree of automation* elsewhere.
@@ -210,4 +214,4 @@ Note: Show nuklear.h
 
 ---
 
-# Questions
+### Questions
