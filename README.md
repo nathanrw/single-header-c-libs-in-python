@@ -2,7 +2,7 @@
 
 Demo code & [presentation](https://nathanrw.github.io/single-header-c-libs-in-python/).
 
-# Presenting
+## Presenting
 
 ```bash
 xrandr --output <projector> --same-as <desktop>
