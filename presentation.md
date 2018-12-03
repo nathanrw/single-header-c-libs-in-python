@@ -23,58 +23,6 @@ Nathan Woodward
 
 ---
 
-### The problem
-
-- Suppose I am writing a Python program, and I need to do something 
-  complicated. There is a good library for it, but it is written 
-  in C.
-
-- What do I do?
-
-  - Use an existing *binding* for it.
-
-  - Roll my own.
-
----
-
-### Writing a binding
-
-- Turns out, there's not a binding for our library (or perhaps 
-  there is one but it's incomplete or unmaintained...)
-
-- But, it's been written following the *single-header* idiom, for ease 
-  of integration.
-
----
-
-### Single-header C libraries
-
-- A (horrible bodge | cunning workaround) to the problem of 
-  integrating C/C++ libraries.
-
-- Instead of worrying about build systems, artifacts and so 
-  on, just write the whole thing in one header.
-
-- Clients then `#include` it and build it however they want.
-
----
-
-### Single-header C libraries
-
-```C
-/* pfx.h */
-int pfx_do_it();
-
-#ifdef PFX_IMPLEMENTATION
-int pfx_do_it()
-{
-    return 0;
-}
-#endif
-```
-
----
-
 ### Image editor
 
 - We're developing an image editor.
@@ -82,8 +30,38 @@ int pfx_do_it()
 - I want to edit my favourite picture, `mystery.bif`, so we need
   to add support for it.
   
-- This is an obscure format read and written by the single-header
-  C library `bif.h`.
+  - This is an obscure format read and written by the *single-header
+    C library* `bif.h`. 
+    
+  - No *binding* for it yet exists.
+  
+Note: binding - wrapper through which we can re-use code written
+      in a different language.
+
+---
+
+### Single-header C libraries
+
+- A (horrible bodge | cunning workaround) to the problem of 
+  integrating C and C++ libraries.
+
+  ```C
+  /* pfx.h */
+  int pfx_do_it();
+  
+  #ifdef PFX_IMPLEMENTATION
+  int pfx_do_it()
+  {
+      return 0;
+  }
+  #endif
+  ```
+  
+- Just write the whole thing in one header and build how you like.
+
+<!-- Note: Instead of worrying about build systems, artifacts and so on, just write the whole thing in one header.
+  
+Note: Clients then `#include` it and build it however they want. -->
 
 ---
 
@@ -93,7 +71,7 @@ Note: See `demo-1.md`.
 
 ---
 
-### What are our options?
+### Writing a binding
 
 1. Write a C++ Python module that wraps the library and
    exposes what we want to Python.
@@ -133,7 +111,7 @@ Note: Same problem of building and packaging. Got to duplicate header info in Py
   enum my_flag {wblWIBBLE = 3, wblWOBBLE = 5};
   ```
 
-- Would be nice to automate this if possible.
+Note: Would be nice to automate this if possible.
 
 ---
 
@@ -151,23 +129,28 @@ Note: Same problem of building and packaging. Got to duplicate header info in Py
 
 - *Semi-automatic* - you can't just pass it a whole header (d'oh!)
 
+Note: 'cffi' - c foreign function interface.
+
 ---
 
-### Can we do better?
+### The `cffi` library
 
 - So, we're stuck pasting in snippets from the header and maintaining
   the thing by hand?
 
 ---
 
-### Yes, we can!
+### The `cffi` library
+
+- ~~So, we're stuck pasting in snippets from the header and maintaining
+  the thing by hand?~~ No!
 
 - Preprocess the header to remove problematic syntax, then 
   feed the whole thing to `cffi`.
 
-- We only care about one header, not every possible header!
-
 - Virtually no maintanance, and easy to build and package!
+
+Note: We only care about one header, not every possible header!
 
 ---
 
