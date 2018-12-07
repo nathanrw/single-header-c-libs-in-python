@@ -187,7 +187,8 @@ Note: See `demo-3.md`.
 ### Conclusion
 
 - The use of `cffi` is not novel. But I've not seen *this
-  degree of automation* elsewhere.
+  degree of automation* elsewhere. (Although I didn't look
+  that hard and it wouldn't surprise me!)
 
 - Reduced maintanance and build complexity for simple dependencies.
 
