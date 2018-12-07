@@ -25,3 +25,17 @@ reveal-md presentation.md # or navigate to static site.
 ```bash
 reveal-md presentation.md --static docs --static-dirs=images
 ```
+
+## Links
+
+This presentation is a recipe for using the hard work of other people 
+without going to much trouble. Here is that hard work:
+
+- [nuklear](https://github.com/vurtun/nuklear), a ridiculously impressive
+  GUI library with *no dependencies* in a single ANSI C header.
+- [cffi](https://cffi.readthedocs.io/en/latest/), a foreign function
+  interface library for Python which takes a reduced C syntax as its
+  interface definition language and which can build C source code for
+  you.
+- [pcpp](https://github.com/ned14/pcpp), A C preprocessor written in
+  Python.
