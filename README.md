@@ -35,7 +35,7 @@ without going to much trouble. Here is that hard work:
   GUI library with *no dependencies* in a single ANSI C header.
 - [cffi](https://cffi.readthedocs.io/en/latest/), a foreign function
   interface library for Python which takes a reduced C syntax as its
-  interface definition language and which can build C source code for
-  you.
+  interface definition language and which can build and package C source
+  code for you.
 - [pcpp](https://github.com/ned14/pcpp), A C preprocessor written in
   Python.
